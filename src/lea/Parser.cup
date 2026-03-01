@@ -16,20 +16,15 @@ parser code {:
 		this.reporter = reporter;
 	}
   
-	public Program parseProgram() {
+	public Instruction parseProgram() {
 		try {
-			if(parse().value instanceof Program program)
-				return program;
+			if(parse().value instanceof Instruction instruction)
+				return instruction;
 		} catch (Exception e) {
 			reporter.error(Reporter.Phase.PARSER, Reporter.Span.EMPTY, "Exception: " + e.getClass().getSimpleName());
 		}
-		return new Program(new ErrorNode());
-	}
-
-	@Override
-	public void syntax_error(Symbol currentSymbol) {
-		if(currentSymbol != null) 
-			errorSpan = errorSpan.union(reporter.span(currentSymbol.value));
+		reporter.error(Reporter.Phase.PARSER, errorSpan, "Error");
+		return new ErrorNode();
 	}
 
 	private ErrorNode error(String message) { 
@@ -38,6 +33,22 @@ parser code {:
 		return new ErrorNode(); 
 	}
 
+	@Override
+	public void syntax_error(Symbol currentSymbol) {
+		if(currentSymbol != null) 
+			errorSpan = errorSpan.union(reporter.span(currentSymbol.value));
+	}
+
+	@Override
+    public void report_error(String message, Object info) {
+    		reporter.error(Reporter.Phase.PARSER, errorSpan, message);
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) {
+    		reporter.error(Reporter.Phase.PARSER, errorSpan, message);
+    }
+
 	private <T extends Node> T mark(T n, Object anchorStart, Object anchorEnd) { 
 		reporter.attach(n, anchorStart, anchorEnd); 
 		return n; 
@@ -45,23 +56,21 @@ parser code {:
     
 :}
 
-terminal					ALGORITHME, DEBUT, FIN;
-terminal					SI, ALORS, SINON, ECRIRE;
+terminal					SI, ALORS, SINON, FIN, ECRIRE;
 terminal					AFFECTATION, PT_VIRG, PAR_G, PAR_D;
 terminal					PLUS, MOINS, MULTIPLIE, ET, OU, EGAL, INFERIEUR;
 terminal		Value		LITERAL;
 terminal		Identifier	ID;
 
-non terminal	Program					algo;
-non terminal	Instruction				instruction, commande, si;
-non terminal	Sequence				sequence;
-non terminal	Expression				expression, catch_expr, somme, produit, oppose, terme, disjunction, comparison, conjunction;
+non terminal	Instruction	input, instruction, commande, conditionnelle;
+non terminal	Sequence	sequence;
+non terminal	Expression	expression, catch_expr, somme, produit, oppose, terme, disjunction, comparison, conjunction;
 
-algo ::=
-		ALGORITHME 
-		DEBUT sequence:s FIN							{: RESULT = new Program(s); :}
-	|	error FIN										{: RESULT = new Program(error("Erreur dans le programme")); :}
+input ::=	
+		sequence:s									{: RESULT = s; :}
 ;
+
+ /* Instructions */
 
 sequence ::=
 		/* Empty */										{: RESULT = new Sequence(new ArrayList<>()); :}
@@ -70,19 +79,22 @@ sequence ::=
 ;
 
 instruction ::=	
-		si:s		 									{: RESULT = s; :}
-	|	ID:id AFFECTATION expression:e					{: RESULT = mark(new Assignment(id,e), id, e); :}
-	|	ECRIRE:deb PAR_G expression:e PAR_D:fin			{: RESULT = mark(new Write(e), deb, fin); :}
+		conditionnelle:c								{: RESULT = c; :}
+	|	commande:c PT_VIRG								{: RESULT = c; :}
 	|	error PT_VIRG									{: RESULT = error("Erreur dans la commande"); :}
 ;
 
-si ::=
+commande ::=	
+		ID:id AFFECTATION expression:e					{: RESULT = mark(new Assignment(id,e), id, e); :}
+	|	ECRIRE:deb PAR_G expression:e PAR_D:fin			{: RESULT = mark(new Write(e), deb, fin); :}
+;
+
+conditionnelle ::=
 		SI:deb catch_expr:cond ALORS 
 			sequence:iftrue
 		SINON 
 			sequence:iffalse 
 		FIN SI:fin										{: RESULT = mark(new If(cond, iftrue, iffalse), deb, fin); :}
- 	|	error FIN SI									{: RESULT = error("Erreur dans la conditionnelle"); :}
 ;
 
  /* Expressions */
@@ -116,7 +128,7 @@ comparison ::=
 somme ::=
 		produit:p										{: RESULT = p; :}
 	|	somme:l	PLUS	produit:r						{: RESULT = mark(new Sum(l, r), l, r); :}
-	|	somme:l	MOINS	produit:r						{: RESULT = mark(new Sum(l, r), l, r); :}
+	|	somme:l	MOINS	produit:r						{: RESULT = mark(new Difference(l, r), l, r); :}
 ;
 
 produit ::=

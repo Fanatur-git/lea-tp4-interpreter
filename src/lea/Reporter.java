@@ -16,10 +16,6 @@ public final class Reporter {
 		diags.add(new Diagnostics(phase, span(position), message));
 	}
 
-	public List<String> getErrors(Phase phase) {
-		return diags.stream().filter(d -> d.phase() == phase).map(d->d.message).toList();
-	}
-
 	public boolean reportErrors(Phase phase) {
 		String errs = "";
 		for (var d : diags) {
@@ -28,7 +24,7 @@ public final class Reporter {
 				errs += "\t" + pos + d.message() + "\n";
 			}
 		}
-		if(errs != "") {
+		if(!errs.isEmpty()) {
 			System.out.println("La phase " + phase + " s'est terminée avec des erreurs");
 			System.out.println(errs);
 			return true;
@@ -36,6 +32,10 @@ public final class Reporter {
 			System.out.println("La phase " + phase + " s'est terminée avec succès");
 			return false;
 		}
+	}
+
+	public List<Diagnostics> getErrors() {
+		return diags;
 	}
 
 	public void out(Value value) {

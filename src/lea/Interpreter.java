@@ -7,24 +7,24 @@ import lea.Reporter.Phase;
 
 public class Interpreter {
 
-	private static class PanicException extends Exception {
-		private static final long serialVersionUID = 1L;
-		public PanicException(String message) {super(message);}
-	}
-
-	private final Reporter reporter;
 	private final Map<Identifier, Value> variables = new HashMap<>();
+	private final Reporter reporter;
 
 	public Interpreter(Reporter reporter) {
 		this.reporter=reporter;
 	}
 
-	public void interpret(Program program) {
+	public void execute(Instruction instruction) {
 		try {
-			interpret(program.body());
+			interpret(instruction);
 		} catch (PanicException e) {}
 	}
 
+	/**
+	 * 
+	 * @param instruction
+	 * @throws PanicException
+	 */
 	private void interpret(Instruction instruction) throws PanicException {
 		switch(instruction) {
 		case Sequence s		-> interpret(s);
@@ -33,22 +33,6 @@ public class Interpreter {
 		case If i			-> interpret(i);
 		case ErrorNode e	-> throw error(e, "Le programme contient une erreur de syntaxe");
 		}
-	}
-
-	private Value eval(Expression expression) throws PanicException {
-		return switch(expression) {
-		case Value l		-> l;
-		case Identifier id 	-> eval(id);
-		case Sum s			-> new Int(evalAsInt(s.left()) + evalAsInt(s.right()));
-		case Difference d	-> new Int(evalAsInt(d.left()) - evalAsInt(d.right()));
-		case Product p		-> new Int(evalAsInt(p.left()) * evalAsInt(p.right()));
-		case Lower l		-> new Bool(evalAsInt(l.left()) < evalAsInt(l.right()));
-		case Equal e 		-> new Bool(eval(e.left()).equals(eval(e.right())));
-		case And a			-> new Bool(evalAsBool(a.left()) && evalAsBool(a.right()));
-		case Or o 			-> new Bool(evalAsBool(o.left()) || evalAsBool(o.right()));
-		case Inverse i		-> new Int(-evalAsInt(i.argument()));
-		case ErrorNode e	-> throw error(e, "Le programme contient une erreur de syntaxe");
-		};
 	}
 
 	private void interpret(Write w) throws PanicException {
@@ -73,6 +57,38 @@ public class Interpreter {
 		}
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 
+	 * @param expression
+	 * @return
+	 * @throws PanicException
+	 */
+	private Value eval(Expression expression) throws PanicException {
+		return switch(expression) {
+		case Value l		-> l;
+		case Identifier id 	-> eval(id);
+		case Sum s			-> new Int(evalAsInt(s.left()) + evalAsInt(s.right()));
+		case Difference d	-> new Int(evalAsInt(d.left()) - evalAsInt(d.right()));
+		case Product p		-> new Int(evalAsInt(p.left()) * evalAsInt(p.right()));
+		case Lower l		-> new Bool(evalAsInt(l.left()) < evalAsInt(l.right()));
+		case Equal e 		-> new Bool(eval(e.left()).equals(eval(e.right())));
+		case And a			-> new Bool(evalAsBool(a.left()) && evalAsBool(a.right()));
+		case Or o 			-> new Bool(evalAsBool(o.left()) || evalAsBool(o.right()));
+		case Inverse i		-> new Int(-evalAsInt(i.argument()));
+		case ErrorNode e	-> throw error(e, "Le programme contient une erreur de syntaxe");
+		};
+	}
+	
 	private Value eval(Identifier id) throws PanicException {
 		Value v = variables.get(id);
 		if (v != null) return v;
@@ -93,9 +109,25 @@ public class Interpreter {
 		};
 	}
 
+	
+	
+	
+	
+	
+	/* ***************
+	 * 	Gestion des erreurs d'exécution
+	 ******************/
 	private PanicException error(Node n, String message) {
 		reporter.error(Phase.RUNTIME, n, message);
 		return new PanicException(message);
 	}
+	
+	private static class PanicException extends Exception {
+		private static final long serialVersionUID = 1L;
+		public PanicException(String message) {super(message);}
+	}
 
+
+	
+	
 }

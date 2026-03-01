@@ -22,18 +22,6 @@ import lea.Node.*;
     this.reporter = reporter;
   }
 
-  private String parseString(String s) {
-    return s.subSequence(1, s.length()-1).toString()
-      .replace("\\b", "\b")
-      .replace("\\r", "\r")
-      .replace("\\f", "\f")
-      .replace("\\n", "\n")
-      .replace("\\t", "\t")
-      .replace("\\'", "'")
-      .replace("\\\"", "\"")
-      .replace("\\\\", "\\");
-  }
-  
   private Symbol mark(int terminal) {
     Reporter.Span span = new Reporter.Span(yyline+1, yycolumn+1, yylength());
   	return new Symbol(terminal, yyline+1, yycolumn+1, span);
@@ -54,13 +42,10 @@ import lea.Node.*;
 %%
 
  /* Keywords */
-"algorithme"   				{ return mark(Terminal.ALGORITHME); }
-"début"        				{ return mark(Terminal.DEBUT); }
-"fin"        				{ return mark(Terminal.FIN); }
-
 "si"        				{ return mark(Terminal.SI); }
 "alors"        				{ return mark(Terminal.ALORS); }
 "sinon"        				{ return mark(Terminal.SINON); }
+"fin"        				{ return mark(Terminal.FIN); }
 
 "écrire"    				{ return mark(Terminal.ECRIRE); }
 

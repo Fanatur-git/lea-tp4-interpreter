@@ -8,12 +8,9 @@ import lea.Reporter.Phase;
 public class Main {
 
 	public static final String defaultProgram = """
-			algorithme
-			début
 				x <- 1;
-				y <- x + 1;
+				y <- x + 2;
 				écrire(y * 3);
-			fin
 			""";
 
 	public static void main(String[] args) throws Exception {
@@ -54,14 +51,14 @@ public class Main {
 
 		// Analyse syntaxique
 		Parser parser = new Parser(lexer,reporter);
-		Program program = parser.parseProgram();
+		Instruction program = parser.parseProgram();
 		hasErrors |= reporter.reportErrors(Phase.LEXER);
 		hasErrors |= reporter.reportErrors(Phase.PARSER);
 
 		// Exécution
 		if(hasErrors) return;
 		Interpreter interpreter = new Interpreter(reporter);
-		interpreter.interpret(program);
+		interpreter.execute(program);
 		reporter.reportErrors(Phase.RUNTIME);
 	}
 

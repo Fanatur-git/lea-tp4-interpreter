@@ -4,8 +4,6 @@ import java.util.List;
 
 public sealed interface Node {
 
-	public record Program(Instruction body)									implements	Node {}
-	
 	public sealed interface Instruction 									extends 	Node {}
 	public sealed interface Expression										extends 	Node {}
 	

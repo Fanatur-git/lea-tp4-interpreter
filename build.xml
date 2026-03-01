@@ -80,9 +80,9 @@
 				<pathelement path="${test.build.dir}"/>
 				<fileset dir="${lib.dir}" includes="*.jar"/>
 			</classpath>
-	        <arg value="--scan-classpath"/>
-	        <arg value="--details=tree"/>
-	        <arg value="--disable-ansi-colors"/>
+	    	<arg value="--scan-classpath"/>
+	        <arg value="--details=tree"/>  
+   	        <arg value="--disable-banner"/>
 	    </java>
 	</target>
 	
