@@ -46,7 +46,13 @@ import lea.Node.*;
 "alors"        				{ return mark(Terminal.ALORS); }
 "sinon"        				{ return mark(Terminal.SINON); }
 "fin"        				{ return mark(Terminal.FIN); }
-
+"tant"              { return mark(Terminal.TANT); }
+"que"               { return mark(Terminal.QUE); }
+"faire"             { return mark(Terminal.FAIRE); }
+"de"                { return mark(Terminal.DE); }
+"pour"              { return mark(Terminal.POUR); }
+"a|à"               { return mark(Terminal.APOUR); }
+"pas"               { return mark(Terminal.PAS); }
 "écrire"    				{ return mark(Terminal.ECRIRE); }
 
  /* Symbols */

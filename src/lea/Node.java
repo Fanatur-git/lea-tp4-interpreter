@@ -11,7 +11,9 @@ public sealed interface Node {
 	public record Assignment(Identifier id, Expression value)				implements	Instruction {}
 	public record Write(Expression argument)								implements	Instruction {}
 	public record If(Expression cond, Instruction bodyT, Instruction bodyF)	implements	Instruction {}
-	
+	public record While(Expression cond, Instruction body)					implements	Instruction {}
+	public record For(Int deb, Int fin,Int pas, Instruction body)					implements	Instruction {}
+
 	public record Identifier(String name)									implements	Expression {}
 	public record Sum(Expression left, Expression right)					implements	Expression {}
 	public record Difference(Expression left, Expression right)				implements	Expression {}

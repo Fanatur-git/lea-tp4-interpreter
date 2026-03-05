@@ -31,6 +31,8 @@ public class Interpreter {
 		case Assignment a	-> variables.put(a.id(), eval(a.value()));
 		case Write w		-> interpret(w);
 		case If i			-> interpret(i);
+		case While wh		-> interpret(wh);
+		case For f			-> interpret(f);
 		case ErrorNode e	-> throw error(e, "Le programme contient une erreur de syntaxe");
 		}
 	}
@@ -54,6 +56,27 @@ public class Interpreter {
 			interpret(i.bodyT());
 		} else {
 			interpret(i.bodyF());
+		}
+	}
+
+	private void interpret(While i) throws PanicException {
+		while(evalAsBool(i.cond())) {
+			interpret(i.body());
+		}
+	}
+
+	private void interpret(For i) throws PanicException {
+		if (i.deb > i.fin){
+			for ( i.deb; i.deb >= i.fin;i.deb = i.deb - i.pas){
+				interpret(i.body());
+		}
+		}
+		else{
+		for ( i.deb; i.deb <= i.fin;i.deb = i.deb + i.pas){
+			interpret(i.body());
+		}
+			
+		}
 		}
 	}
 

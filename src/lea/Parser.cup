@@ -56,13 +56,13 @@ parser code {:
     
 :}
 
-terminal					SI, ALORS, SINON, FIN, ECRIRE;
+terminal					SI, ALORS, SINON, FIN, ECRIRE, FAIRE, TANT, QUE,POUR,DE,APOUR,PAS;
 terminal					AFFECTATION, PT_VIRG, PAR_G, PAR_D;
 terminal					PLUS, MOINS, MULTIPLIE, ET, OU, EGAL, INFERIEUR;
 terminal		Value		LITERAL;
 terminal		Identifier	ID;
 
-non terminal	Instruction	input, instruction, commande, conditionnelle;
+non terminal	Instruction	input, instruction, commande, conditionnelle, boucletq,bouclefor;
 non terminal	Sequence	sequence;
 non terminal	Expression	expression, catch_expr, somme, produit, oppose, terme, disjunction, comparison, conjunction;
 
@@ -81,6 +81,7 @@ sequence ::=
 instruction ::=	
 		conditionnelle:c								{: RESULT = c; :}
 	|	commande:c PT_VIRG								{: RESULT = c; :}
+	|	boucletq:b										{: RESULT = b; :}
 	|	error PT_VIRG									{: RESULT = error("Erreur dans la commande"); :}
 ;
 
@@ -95,6 +96,19 @@ conditionnelle ::=
 		SINON 
 			sequence:iffalse 
 		FIN SI:fin										{: RESULT = mark(new If(cond, iftrue, iffalse), deb, fin); :}
+	| 	error FIN SI									{: RESULT = error("Erreur dans la conditionnelle"); :}
+;
+boucletq ::=
+		TANT:deb QUE catch_expr:cond FAIRE
+			sequence:s
+		FIN TANT QUE:fin								{: RESULT = mark(new While(cond,s),deb,fin); :}
+	|	error FIN TANT QUE								{: RESULT = error("Erreur dans la boucle non bornée"); :}
+;
+bouclefor ::=
+		POUR:deb terme:i DE terme:d APOUR terme:f PAS terme:P FAIRE
+			sequence:s
+		FIN POUR:fin								{: RESULT = mark(new For(i,d,f,p),deb,fin); :}
+	|	error FIN POUR								{: RESULT = error("Erreur dans la boucle non bornée"); :}
 ;
 
  /* Expressions */
