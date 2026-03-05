@@ -51,8 +51,9 @@ import lea.Node.*;
 "faire"             { return mark(Terminal.FAIRE); }
 "de"                { return mark(Terminal.DE); }
 "pour"              { return mark(Terminal.POUR); }
-"a|à"               { return mark(Terminal.APOUR); }
+"à"               { return mark(Terminal.APOUR); }
 "pas"               { return mark(Terminal.PAS); }
+
 "écrire"    				{ return mark(Terminal.ECRIRE); }
 
  /* Symbols */

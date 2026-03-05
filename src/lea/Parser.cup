@@ -56,7 +56,7 @@ parser code {:
     
 :}
 
-terminal					SI, ALORS, SINON, FIN, ECRIRE, FAIRE, TANT, QUE,POUR,DE,APOUR,PAS;
+terminal					SI, ALORS, SINON, FIN, ECRIRE, FAIRE, TANT, QUE,POUR,DE,APOUR,PAS,VAR;
 terminal					AFFECTATION, PT_VIRG, PAR_G, PAR_D;
 terminal					PLUS, MOINS, MULTIPLIE, ET, OU, EGAL, INFERIEUR;
 terminal		Value		LITERAL;
@@ -82,6 +82,7 @@ instruction ::=
 		conditionnelle:c								{: RESULT = c; :}
 	|	commande:c PT_VIRG								{: RESULT = c; :}
 	|	boucletq:b										{: RESULT = b; :}
+	|	bouclefor:b										{: RESULT = b; :}
 	|	error PT_VIRG									{: RESULT = error("Erreur dans la commande"); :}
 ;
 
@@ -105,9 +106,12 @@ boucletq ::=
 	|	error FIN TANT QUE								{: RESULT = error("Erreur dans la boucle non bornée"); :}
 ;
 bouclefor ::=
-		POUR:deb terme:i DE terme:d APOUR terme:f PAS terme:P FAIRE
+		POUR:deb ID:var DE terme:d APOUR terme:f PAS terme:p FAIRE
 			sequence:s
-		FIN POUR:fin								{: RESULT = mark(new For(i,d,f,p),deb,fin); :}
+		FIN POUR:fin								{: RESULT = mark(new For(var,d,f,p,s),deb,fin); :}
+	| 	POUR:deb ID:var DE terme:d APOUR terme:f FAIRE
+			sequence:s
+		FIN POUR:fin								{: Expression p = new Int(1);RESULT = mark(new For(var,d,f,p,s),deb,fin); :}
 	|	error FIN POUR								{: RESULT = error("Erreur dans la boucle non bornée"); :}
 ;
 
