@@ -64,7 +64,7 @@ terminal		Identifier	ID;
 
 non terminal	Instruction	input, instruction, commande, conditionnelle, boucletq,bouclefor;
 non terminal	Sequence	sequence;
-non terminal	Expression	expression, catch_expr, somme, produit, oppose, terme, disjunction, comparison, conjunction;
+non terminal	Expression	expression, catch_expr, somme, produit, oppose, terme, disjunction, comparison, conjunction,pas;
 
 input ::=	
 		sequence:s									{: RESULT = s; :}
@@ -106,15 +106,15 @@ boucletq ::=
 	|	error FIN TANT QUE								{: RESULT = error("Erreur dans la boucle non bornée"); :}
 ;
 bouclefor ::=
-		POUR:deb ID:var DE terme:d APOUR terme:f PAS terme:p FAIRE
+		POUR:deb ID:var DE terme:d APOUR terme:f pas:p FAIRE
 			sequence:s
 		FIN POUR:fin								{: RESULT = mark(new For(var,d,f,p,s),deb,fin); :}
-	| 	POUR:deb ID:var DE terme:d APOUR terme:f FAIRE
-			sequence:s
-		FIN POUR:fin								{: Expression p = new Int(1);RESULT = mark(new For(var,d,f,p,s),deb,fin); :}
 	|	error FIN POUR								{: RESULT = error("Erreur dans la boucle non bornée"); :}
 ;
-
+pas ::=
+		PAS terme:p			{:RESULT = p;:}
+	| 						{:RESULT = new Int(1);:}
+;
  /* Expressions */
 
 catch_expr ::=

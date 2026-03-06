@@ -66,22 +66,17 @@ public class Interpreter {
 	}
 
 	private void interpret(For i) throws PanicException {
-		 int start,end,step;
-		 start = evalAsInt(i.deb());
-		 end = evalAsInt(i.fin());
-		 step = evalAsInt(i.pas());
-		 Identifier var = i.var();
-
-		if (start > end){
-			if (step <= 0) throw error(i, "Le pas doit être Positif");
-			for (int k = start; k >= end; k = k - step){
-				variables.put(var, new Int(k));
+		int end = evalAsInt(i.fin());
+		if (evalAsInt(i.deb()) > end){
+			if (evalAsInt(i.pas()) <= 0) throw error(i, "Le pas doit être Positif");
+			for (int k = evalAsInt(i.deb()); k >= end; k -= evalAsInt(i.pas())){
+				variables.put(i.var(), new Int(k));
 				interpret(i.body());
 		}
 		}
 		else{
-		for (int k = start; k <= end; k = k + step){
-			variables.put(var, new Int(k));
+		for (int k = evalAsInt(i.deb()); k <= end; k += evalAsInt(i.pas())){
+			variables.put(i.var(), new Int(k));
 			interpret(i.body());
 		}
 			
